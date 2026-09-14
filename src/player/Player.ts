@@ -12,9 +12,9 @@ export class Player {
     // Input and Movement
     input = new THREE.Vector3()
     velocity = new THREE.Vector3()
-    jumpSpeed = 10
+    jumpSpeed = 5
     isOnGround = false
-    maxSpeed = 20
+    maxSpeed = 10
 
     // Camera and Controls
     camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 100)
@@ -22,9 +22,9 @@ export class Player {
     cameraHelper = new THREE.CameraHelper(this.camera)
 
     constructor(scene: THREE.Scene) {
-        this.camera.position.set(32, 16, 32)
+        this.camera.position.set(0, this.height, 0)
         scene.add(this.camera)
-        scene.add(this.cameraHelper)
+        // scene.add(this.cameraHelper)
 
         const playerGeometry = new THREE.CylinderGeometry(this.radius, this.radius, this.height, 16)
         const playerMaterial = new THREE.MeshBasicMaterial({ wireframe: true })
@@ -86,7 +86,8 @@ export class Player {
 
     applyInputs(deltaTime: number) {
         // Get velocity
-        this.velocity.copy(this.input)
+        this.velocity.x = this.input.x
+        this.velocity.z = this.input.z
 
         // Apply Inputs and Move Player (Velocity and input is relative to player, not the world, therefore we can do .moveForward())
         this.controls.moveForward(this.velocity.z * deltaTime)
