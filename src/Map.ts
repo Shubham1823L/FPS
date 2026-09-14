@@ -1,0 +1,24 @@
+import * as THREE from 'three'
+import { GLTFLoader } from 'three/examples/jsm/Addons.js'
+
+const loader = new GLTFLoader().setPath('/models')
+
+export class Map {
+
+
+    private constructor() {
+
+    }
+
+    static async generate(scene: THREE.Scene) {
+        const glb = await loader.loadAsync('/ghost_city_map.glb')
+        glb.scene.traverse(child => {
+            if (child instanceof THREE.Mesh) {
+                child.castShadow = true
+                child.receiveShadow = true
+            }
+        })
+
+        scene.add(glb.scene)
+    }
+}

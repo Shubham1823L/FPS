@@ -1,6 +1,8 @@
 import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/Addons.js'
 import Stats from 'three/examples/jsm/libs/stats.module.js'
+import { Environment } from './Environment'
+import { FirstPersonCamera } from './FirstPersonCamera'
+import { Map } from './Map'
 
 
 const stats = new Stats()
@@ -17,48 +19,21 @@ renderer.shadowMap.type = THREE.PCFShadowMap
 document.body.appendChild(renderer.domElement)
 
 
-// Camera Setup
-const orbitCamera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight)
-orbitCamera.position.set(-32, 16, -32)
-orbitCamera.lookAt(0, 0, 0)
-
-const controls = new OrbitControls(orbitCamera, renderer.domElement)
-controls.target.set(16, 0, 16)
-controls.update()
-
-
 // Scene and others Setup
 const scene = new THREE.Scene()
+const fpsCamera = new FirstPersonCamera()
+Environment.generate(scene)
+Map.generate(scene)
 
-
-const setupLights = () => {
-  const sun = new THREE.DirectionalLight(0xFFFFFF, 2.5)
-  sun.position.set(50, 50, 50)
-  sun.castShadow = true
-  sun.shadow.camera.near = 0.1
-  sun.shadow.camera.far = 200
-  sun.shadow.camera.left = -30
-  sun.shadow.camera.right = 30
-  sun.shadow.camera.top = 30
-  sun.shadow.camera.bottom = -30
-  sun.shadow.mapSize.set(1024, 1024)
-  sun.shadow.bias = -.001
-  scene.add(sun)
-
-  const fillLight = new THREE.HemisphereLight(0x8dc1de, 0x00668d, 1.5);
-  fillLight.position.set(2, 1, 1);
-  scene.add(fillLight);
-
-  const ambientLight = new THREE.AmbientLight('white', .1)
-  scene.add(ambientLight)
-}
 
 // Render Loop
+let previousTime = performance.now()
 const animate = () => {
   requestAnimationFrame(animate)
 
-  renderer.render(scene, orbitCamera)
-  // renderer.render(scene, player.camera)
+  const timeElapsedS = (performance.now() - previousTime) / 1000
+  fpsCamera.update(timeElapsedS)
+  console.log(scene.children)
 
   stats.update()
 }
@@ -66,13 +41,9 @@ const animate = () => {
 
 // Resize Observer
 window.addEventListener('resize', () => {
-  orbitCamera.aspect = innerWidth / innerHeight
-  orbitCamera.updateProjectionMatrix()
-
   renderer.setSize(innerWidth, innerHeight)
 })
 
 
 // Run
-setupLights()
 animate()
