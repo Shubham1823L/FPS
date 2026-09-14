@@ -16,8 +16,8 @@ export class Physics {
         while (this.accumulator >= this.timeStep) {
             player.applyInputs(input)
             // player.velocity.y -= this.gravity * this.timeStep
-            console.log(player.velocity.length())
-            player.position.addScaledVector(player.velocity, this.timeStep)
+            player.controls.moveForward(player.velocity.z * this.timeStep)
+            player.controls.moveRight(player.velocity.x * this.timeStep)
 
 
             // Update Bounds Helper
