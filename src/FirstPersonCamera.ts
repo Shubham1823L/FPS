@@ -16,30 +16,31 @@ export class FirstPersonCamera {
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight)
         this.camera.position.set(0, 0, 0)
         this.camera.rotation.set(0, 0, 0)
-        
+
         window.addEventListener('resize', this.onResize)
     }
 
     private onResize() {
-        console.log(this.camera)
         this.camera.aspect = window.innerWidth / window.innerHeight
         this.camera.updateProjectionMatrix()
     }
 
     update(timeElapsedS: number) {
         this.updateRotation(timeElapsedS)
-        this.updateCamera(timeElapsedS)
+        this.updateCamera()
+        this.input.update()
     }
 
-    updateCamera(timeElapsedS: number) {
+    updateCamera() {
         this.camera.quaternion.copy(this.rotation)
     }
 
     updateRotation(timeElapsedS: number) {
-        const xh = this.input.mouseDelta.x * this.input.sensitivity
-        const yh = this.input.mouseDelta.y * this.input.sensitivity
+        console.log(this.input.mouseDelta)
+        const xh = this.input.mouseDelta.x / window.innerWidth
+        const yh = this.input.mouseDelta.y / window.innerHeight
 
-        this.phi += -xh * 5
+        this.phi += -xh * 8
         this.theta = clamp(this.theta + -yh * 5, -Math.PI / 3, Math.PI / 3)
 
         const qx = new THREE.Quaternion() // handles rotation around y axis

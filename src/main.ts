@@ -33,8 +33,8 @@ const animate = () => {
 
   const timeElapsedS = (performance.now() - previousTime) / 1000
   fpsCamera.update(timeElapsedS)
-  console.log(scene.children)
 
+  renderer.render(scene, fpsCamera.camera)
   stats.update()
 }
 

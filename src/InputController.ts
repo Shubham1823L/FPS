@@ -38,7 +38,7 @@ export class InputController {
     }
 
     update() {
-
+        this.mouseDelta = { x: 0, y: 0 }
     }
 
 }

@@ -11,14 +11,18 @@ export class Map {
     }
 
     static async generate(scene: THREE.Scene) {
-        const glb = await loader.loadAsync('/ghost_city_map.glb')
-        glb.scene.traverse(child => {
-            if (child instanceof THREE.Mesh) {
-                child.castShadow = true
-                child.receiveShadow = true
-            }
-        })
-
-        scene.add(glb.scene)
+        try {
+            const glb = await loader.loadAsync('/ghost_city_map.glb')
+            glb.scene.traverse(child => {
+                if (child instanceof THREE.Mesh) {
+                    child.castShadow = true
+                    child.receiveShadow = true
+                }
+            })
+            scene.add(glb.scene)
+           
+        } catch (error) {
+            console.error("Error loading map", error)
+        }
     }
 }
