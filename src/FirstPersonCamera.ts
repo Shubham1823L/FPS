@@ -4,20 +4,23 @@ import { clamp } from 'three/src/math/MathUtils.js'
 
 
 export class FirstPersonCamera {
-    camera: THREE.PerspectiveCamera
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight)
     input = new InputController()
 
-    rotation = new THREE.Quaternion()
+    rotation = new THREE.Vector3()
     translation = new THREE.Vector3()
     phi = 0
     theta = 0
 
-    constructor() {
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight)
-        this.camera.position.set(0, 0, 0)
-        this.camera.rotation.set(0, 0, 0)
+    yaw = 0
+    pitch = 0
 
-        window.addEventListener('resize', this.onResize)
+    constructor() {
+        this.camera.position.set(1, 5, 1)
+        this.camera.rotation.order = 'YXZ'
+        this.camera.rotation.set(this.pitch, this.yaw, 0)
+
+        window.addEventListener('resize', this.onResize.bind(this))
     }
 
     private onResize() {
@@ -25,33 +28,30 @@ export class FirstPersonCamera {
         this.camera.updateProjectionMatrix()
     }
 
-    update(timeElapsedS: number) {
-        this.updateRotation(timeElapsedS)
+    update() {
+        this.updateRotation()
         this.updateCamera()
         this.input.update()
     }
 
     updateCamera() {
-        this.camera.quaternion.copy(this.rotation)
+        this.camera.rotation.set(this.pitch, this.yaw, 0)
     }
 
-    updateRotation(timeElapsedS: number) {
-        console.log(this.input.mouseDelta)
-        const xh = this.input.mouseDelta.x / window.innerWidth
-        const yh = this.input.mouseDelta.y / window.innerHeight
+    updateRotation() {
+        const xh = this.input.mouseDelta.x * this.input.sensitivity
+        const yh = this.input.mouseDelta.y * this.input.sensitivity
 
-        this.phi += -xh * 8
-        this.theta = clamp(this.theta + -yh * 5, -Math.PI / 3, Math.PI / 3)
+        this.camera.rotation.y += -xh
+        this.camera.rotation.x = clamp(this.camera.rotation.x - yh, - Math.PI / 2, Math.PI / 2)
 
-        const qx = new THREE.Quaternion() // handles rotation around y axis
-        qx.setFromAxisAngle(new THREE.Vector3(0, 1, 0), this.phi)
-        const qz = new THREE.Quaternion() // handles rotation around x axis
-        qz.setFromAxisAngle(new THREE.Vector3(1, 0, 0), this.theta)
+        let yaw = this.yaw + (- xh) // restricted but unbounded range ---> (-PI,PI] - desired
+        const pitch = clamp(this.pitch - yh, - Math.PI / 2, Math.PI / 2) // restricted
 
-        const q = new THREE.Quaternion() // final rotation
-        q.multiply(qx)
-        q.multiply(qz)
+        if (yaw > Math.PI) yaw -= (2 * Math.PI)
+        else if (yaw <= -Math.PI) yaw += (2 * Math.PI)
 
-        this.rotation.copy(q)
+        this.yaw = yaw
+        this.pitch = pitch
     }
 }
