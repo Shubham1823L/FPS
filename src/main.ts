@@ -1,12 +1,6 @@
 import * as THREE from 'three'
-import { OctreeHelper, OrbitControls } from 'three/examples/jsm/Addons.js'
+import { OrbitControls } from 'three/examples/jsm/Addons.js'
 import Stats from 'three/examples/jsm/libs/stats.module.js'
-import { Player } from './player/Player'
-import { Physics } from './physics/Physics'
-import { Map } from './world/Map'
-import { Controller } from './player/Controller'
-import GUI from 'three/examples/jsm/libs/lil-gui.module.min.js'
-
 
 
 const stats = new Stats()
@@ -35,10 +29,7 @@ controls.update()
 
 // Scene and others Setup
 const scene = new THREE.Scene()
-const player = new Player(scene)
-const controller = new Controller()
-const map = await Map.load('/ghost_city_map.glb', scene)
-const physics = new Physics(map.octree)
+
 
 const setupLights = () => {
   const sun = new THREE.DirectionalLight(0xFFFFFF, 2.5)
@@ -54,31 +45,21 @@ const setupLights = () => {
   sun.shadow.bias = -.001
   scene.add(sun)
 
-  const fillLight1 = new THREE.HemisphereLight(0x8dc1de, 0x00668d, 1.5);
-  fillLight1.position.set(2, 1, 1);
-  scene.add(fillLight1);
-
-  // const shadowHelper = new THREE.CameraHelper(sun.shadow.camera)
-  // scene.add(shadowHelper)
+  const fillLight = new THREE.HemisphereLight(0x8dc1de, 0x00668d, 1.5);
+  fillLight.position.set(2, 1, 1);
+  scene.add(fillLight);
 
   const ambientLight = new THREE.AmbientLight('white', .1)
   scene.add(ambientLight)
-
-  // scene.add(new THREE.AxesHelper(100))
 }
 
 // Render Loop
-let previousTime = performance.now()
 const animate = () => {
-  const currentTime = performance.now()
-  const deltaTime = (currentTime - previousTime) / 1000
-  previousTime = currentTime
-
   requestAnimationFrame(animate)
 
-  physics.update(deltaTime, player, controller.updateInput(player))
-  renderer.render(scene, player.controls.isLocked ? player.camera : orbitCamera)
+  renderer.render(scene, orbitCamera)
   // renderer.render(scene, player.camera)
+
   stats.update()
 }
 
@@ -95,23 +76,3 @@ window.addEventListener('resize', () => {
 // Run
 setupLights()
 animate()
-
-const helper = new OctreeHelper(map.octree);
-helper.visible = false;
-scene.add(helper);
-
-const gui = new GUI({ width: 200 });
-gui.add({ debug: false }, 'debug')
-  .onChange(function (value) {
-
-    helper.visible = value;
-
-  });
-
-
-window.addEventListener('keydown', () => {
-  if (!player.controls.isLocked) player.controls.lock()
-})
-renderer.domElement.addEventListener('mousedown', () => {
-  // if (!player.controls.isLocked) player.controls.lock()
-})
