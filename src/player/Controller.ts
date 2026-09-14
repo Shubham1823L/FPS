@@ -10,7 +10,7 @@ const keyMap = {
 
 export class Controller {
     activeKeys = new Set<string>()
-    input = new THREE.Vector3()
+    private input = new THREE.Vector3()
 
 
     constructor() {
@@ -27,7 +27,7 @@ export class Controller {
         this.activeKeys.delete(e.code)
     }
 
-    getInput() {
+    updateInput() {
         this.input = new THREE.Vector3()
 
         if (this.activeKeys.has(keyMap.forward)) {

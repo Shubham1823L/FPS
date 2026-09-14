@@ -4,6 +4,7 @@ import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { Player } from './player/Player'
 import { Physics } from './physics/Physics'
 import { Map } from './world/Map'
+import { Controller } from './player/Controller'
 
 
 
@@ -17,7 +18,7 @@ renderer.setPixelRatio(devicePixelRatio)
 renderer.setSize(innerWidth, innerHeight)
 renderer.setClearColor(0x80a0e0)
 renderer.shadowMap.enabled = true
-renderer.shadowMap.type = THREE.PCFSoftShadowMap
+renderer.shadowMap.type = THREE.PCFShadowMap
 document.body.appendChild(renderer.domElement)
 
 
@@ -35,6 +36,7 @@ controls.update()
 const scene = new THREE.Scene()
 const player = new Player(scene)
 const physics = new Physics()
+const controller = new Controller()
 Map.load('/ghost_city_map.glb', scene)
 
 const setupLights = () => {
@@ -73,7 +75,7 @@ const animate = () => {
 
   requestAnimationFrame(animate)
 
-  physics.update(deltaTime, player)
+  physics.update(deltaTime, player, controller.updateInput())
   renderer.render(scene, player.controls.isLocked ? player.camera : orbitCamera)
   stats.update()
 }

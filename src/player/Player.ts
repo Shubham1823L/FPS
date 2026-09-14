@@ -9,9 +9,8 @@ export class Player {
     height = 1.75
     boundsHelper: THREE.Mesh
 
-    // Input and Movement
-    input = new THREE.Vector3()
-    velocity = new THREE.Vector3()
+    // Movement
+    velocity = new THREE.Vector3() // world velocity
     jumpSpeed = 5
     isOnGround = false
     maxSpeed = 10
@@ -20,6 +19,7 @@ export class Player {
     camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 100)
     controls = new PointerLockControls(this.camera, document.body)
     cameraHelper = new THREE.CameraHelper(this.camera)
+    direction = new THREE.Vector3() // world direction
 
     constructor(scene: THREE.Scene) {
         this.camera.position.set(0, this.height, 0)
@@ -31,76 +31,40 @@ export class Player {
         this.boundsHelper = new THREE.Mesh(playerGeometry, playerMaterial)
         scene.add(this.boundsHelper)
 
-        document.body.addEventListener('keydown', this.handleKeyDown.bind(this))
-        document.body.addEventListener('keyup', this.handleKeyUp.bind(this))
+        window.addEventListener('keydown', () => {
+            if (!this.controls.isLocked) this.controls.lock()
+        })
     }
 
     get position() {
         return this.camera.position
     }
 
-    handleKeyDown(e: KeyboardEvent) {
-        if (!this.controls.isLocked) this.controls.lock()
+    applyInputs(input: THREE.Vector3) {
+        // Update velocity
+        this.velocity.set(0, 0, 0)
+        this.velocity.addScaledVector(this.getForwardVector(), Math.sign(input.z))
+        this.velocity.addScaledVector(this.getSideVector(), Math.sign(input.x))
+        this.velocity.normalize().multiplyScalar(this.maxSpeed)
+        // console.log(input, Math.sign(input.x), Math.sign(input.z))
+        // this.velocity.copy(input).setY(0)
+        // this.velocity.normalize().multiplyScalar(this.maxSpeed)
 
-        switch (e.code) {
-            case 'KeyW':
-                this.input.z = Math.min(this.maxSpeed + this.input.z, this.maxSpeed)
-                break;
-            case 'KeyA':
-                this.input.x = Math.max(-this.maxSpeed, this.input.x - this.maxSpeed)
-                break;
-            case 'KeyS':
-                this.input.z = Math.max(-this.maxSpeed, this.input.z - this.maxSpeed)
-                break;
-            case 'KeyD':
-                this.input.x = Math.min(this.maxSpeed + this.input.x, this.maxSpeed)
-                break;
-            case 'Space':
-                if (this.isOnGround) this.input.y += this.jumpSpeed
-                break;
-
-            default:
-                break;
-        }
+        // if (this.isOnGround) this.velocity.setY(input.y * this.jumpSpeed)
     }
 
-    handleKeyUp(e: KeyboardEvent) {
-        switch (e.code) {
-            case 'KeyW':
-                this.input.z = Math.max(-this.maxSpeed, this.input.z - this.maxSpeed)
-                break;
-            case 'KeyA':
-                this.input.x = Math.min(this.maxSpeed + this.input.x, this.maxSpeed)
-                break;
-            case 'KeyS':
-                this.input.z = Math.min(this.maxSpeed + this.input.z, this.maxSpeed)
-                break;
-            case 'KeyD':
-                this.input.x = Math.max(-this.maxSpeed, this.input.x - this.maxSpeed)
-                break;
+    getForwardVector() {
+        this.camera.getWorldDirection(this.direction)
+        this.direction.y = 0
+        this.direction.normalize()
 
-            default:
-                break;
-        }
+        return this.direction
     }
 
-    applyInputs(deltaTime: number) {
-        // Get velocity
-        this.velocity.x = this.input.x
-        this.velocity.z = this.input.z
+    getSideVector() {
+        this.getForwardVector()
+        this.direction.cross(this.camera.up) // cross with verticlal axis in world coords
 
-        // Apply Inputs and Move Player (Velocity and input is relative to player, not the world, therefore we can do .moveForward())
-        this.controls.moveForward(this.velocity.z * deltaTime)
-        this.controls.moveRight(this.velocity.x * deltaTime)
-        this.position.y += this.velocity.y * deltaTime
-
-        // Update Bounds Helper
-        this.boundsHelper.position.copy(this.position)
-        this.boundsHelper.position.y -= this.height / 2
-
-        // Update Player Coordinates Display
-        const playerCoordinatesDiv = document.getElementById('playerCoordinates')
-        if (!playerCoordinatesDiv) return
-        playerCoordinatesDiv.textContent = `X: ${this.position.x.toFixed(1)} Y: ${this.position.y.toFixed(1)} Z: ${this.position.z.toFixed(1)}`
+        return this.direction
     }
 }
