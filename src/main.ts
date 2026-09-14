@@ -77,8 +77,8 @@ const animate = () => {
   requestAnimationFrame(animate)
 
   physics.update(deltaTime, player, controller.updateInput(player))
-  // renderer.render(scene, player.controls.isLocked ? player.camera : orbitCamera)
-  renderer.render(scene, player.camera)
+  renderer.render(scene, player.controls.isLocked ? player.camera : orbitCamera)
+  // renderer.render(scene, player.camera)
   stats.update()
 }
 
@@ -113,5 +113,5 @@ window.addEventListener('keydown', () => {
   if (!player.controls.isLocked) player.controls.lock()
 })
 renderer.domElement.addEventListener('mousedown', () => {
-  if (!player.controls.isLocked) player.controls.lock()
+  // if (!player.controls.isLocked) player.controls.lock()
 })

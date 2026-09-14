@@ -23,17 +23,18 @@ export class Player {
     boundsHelper = new THREE.Mesh(new THREE.CapsuleGeometry(this.radius, this.height), new THREE.MeshBasicMaterial({ wireframe: true, color: 'white' }))
 
     constructor(scene: THREE.Scene) {
-        this.camera.position.copy(this.collider.end)
+        this.camera.position.copy(this.collider.end).add(new THREE.Vector3(0, this.radius, 0))
         this.camera.rotation.set(0, 0, 0)
         scene.add(this.camera)
         this.collider.getCenter(this.boundsHelper.position)
         scene.add(this.boundsHelper)
-        // scene.add(this.cameraHelper)
+        scene.add(this.cameraHelper)
 
-        // const playerGeometry = new THREE.CylinderGeometry(this.radius, this.radius, this.height, 16)
-        // const playerMaterial = new THREE.MeshBasicMaterial({ wireframe: true })
-        // this.boundsHelper = new THREE.Mesh(playerGeometry, playerMaterial)
-        // scene.add(this.boundsHelper)
+        window.addEventListener('resize', () => {
+            this.camera.aspect = innerWidth / innerHeight
+            this.camera.updateProjectionMatrix()
+        })
+
     }
 
     get position() {
@@ -47,7 +48,6 @@ export class Player {
         if (this.isOnGround) this.velocity.y = input.y * this.jumpSpeed
 
         this.velocity.set(horizontalVelocity.x, this.velocity.y, horizontalVelocity.z)
-
-        // if (this.isOnGround) this.velocity.setY(input.y * this.jumpSpeed)
     }
+
 }

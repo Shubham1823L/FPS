@@ -25,15 +25,10 @@ export class Physics {
             player.controls.moveForward(player.velocity.z * this.timeStep)
             player.controls.moveRight(player.velocity.x * this.timeStep)
             player.position.y += player.velocity.y * this.timeStep
-
+            console.log(player.position)
             const { x, y, z } = player.position
-            player.collider.start.set(x, y, z)
-            player.collider.end.set(x, y, z)
-
-
-            // // Update Bounds Helper
-            // player.boundsHelper.position.copy(player.position)
-            // player.boundsHelper.position.y -= player.height / 2
+            player.collider.start.set(x, y - (2 * player.radius + player.height), z)
+            player.collider.end.set(x, y - player.radius, z)
 
             // Update Player Coordinates Display
             const playerCoordinatesDiv = document.getElementById('playerCoordinates')
@@ -63,7 +58,7 @@ export class Physics {
         }
 
         // Collision detected
-        if (result.depth >= 1e-10) {
+        if (result.depth >= 1e-1) {
 
             player.collider.translate(result.normal.multiplyScalar(result.depth))
         }
