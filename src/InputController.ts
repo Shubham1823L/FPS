@@ -1,4 +1,4 @@
-const keyMap = {
+export const keyMap = {
     forward: 'KeyW',
     left: 'KeyA',
     backward: 'KeyS',

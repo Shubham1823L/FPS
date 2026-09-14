@@ -32,10 +32,12 @@ const animate = () => {
   requestAnimationFrame(animate)
 
   const timeElapsedS = (performance.now() - previousTime) / 1000
-  fpsCamera.update()
+  fpsCamera.update(timeElapsedS)
 
   renderer.render(scene, fpsCamera.camera)
   stats.update()
+
+  previousTime = performance.now()
 }
 
 

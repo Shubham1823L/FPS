@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { InputController } from './InputController'
+import { InputController, keyMap } from './InputController'
 import { clamp } from 'three/src/math/MathUtils.js'
 
 
@@ -7,16 +7,12 @@ export class FirstPersonCamera {
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight)
     input = new InputController()
 
-    rotation = new THREE.Vector3()
-    translation = new THREE.Vector3()
-    phi = 0
-    theta = 0
+    translation = new THREE.Vector3(1, 1, 5)
 
     yaw = 0
     pitch = 0
 
     constructor() {
-        this.camera.position.set(1, 5, 1)
         this.camera.rotation.order = 'YXZ'
         this.camera.rotation.set(this.pitch, this.yaw, 0)
 
@@ -28,14 +24,29 @@ export class FirstPersonCamera {
         this.camera.updateProjectionMatrix()
     }
 
-    update() {
+    update(timeElapsedS: number) {
         this.updateRotation()
         this.updateCamera()
+        this.updateTranslation(timeElapsedS)
         this.input.update()
     }
 
     updateCamera() {
         this.camera.rotation.set(this.pitch, this.yaw, 0)
+        this.camera.position.copy(this.translation)
+    }
+
+    updateTranslation(timeElapsedS: number) {
+        const forwardVelocity = (this.input.activeKeys.has(keyMap.forward) ? 1 : 0) + (this.input.activeKeys.has(keyMap.backward) ? -1 : 0)
+        const strafeVelocity = (this.input.activeKeys.has(keyMap.right) ? 1 : 0) + (this.input.activeKeys.has(keyMap.left) ? -1 : 0)
+
+        const forward = new THREE.Vector3(0, 0, -1)
+        forward.applyAxisAngle(new THREE.Vector3(0, 1, 0), this.yaw).multiplyScalar(forwardVelocity * timeElapsedS * 10)
+        const strafe = new THREE.Vector3(1, 0, 0)
+        strafe.applyAxisAngle(new THREE.Vector3(0, 1, 0), this.yaw).multiplyScalar(strafeVelocity * timeElapsedS * 10)
+
+        this.translation.add(forward)
+        this.translation.add(strafe)
     }
 
     updateRotation() {
