@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import type { Player } from './Player'
 
 const keyMap = {
     forward: 'KeyW',
@@ -27,7 +28,7 @@ export class Controller {
         this.activeKeys.delete(e.code)
     }
 
-    updateInput() {
+    updateInput(player: Player) {
         this.input = new THREE.Vector3()
 
         if (this.activeKeys.has(keyMap.forward)) {
@@ -42,7 +43,7 @@ export class Controller {
         if (this.activeKeys.has(keyMap.right)) {
             this.input.x += 1
         }
-        if (this.activeKeys.has(keyMap.jump)) {
+        if (player.isOnGround && this.activeKeys.has(keyMap.jump)) {
             this.input.y = 1
         }
 
