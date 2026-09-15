@@ -7,14 +7,15 @@ export class FirstPersonCamera {
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight)
     input = new InputController()
 
-    translation = new THREE.Vector3(1, 1, 5)
+    translation = new THREE.Vector3()
 
     yaw = 0
     pitch = 0
 
-    constructor() {
+    constructor(spawnPosition: THREE.Vector3, height: number) {
         this.camera.rotation.order = 'YXZ'
-        this.camera.rotation.set(this.pitch, this.yaw, 0)
+        this.translation.copy(spawnPosition).add(new THREE.Vector3(0, height, 0))
+        this.updateCamera()
 
         window.addEventListener('resize', this.onResize.bind(this))
     }
@@ -26,8 +27,8 @@ export class FirstPersonCamera {
 
     update(timeElapsedS: number) {
         this.updateRotation()
-        this.updateCamera()
         this.updateTranslation(timeElapsedS)
+        this.updateCamera()
         this.input.update()
     }
 
@@ -41,12 +42,13 @@ export class FirstPersonCamera {
         const strafeVelocity = (this.input.activeKeys.has(keyMap.right) ? 1 : 0) + (this.input.activeKeys.has(keyMap.left) ? -1 : 0)
 
         const forward = new THREE.Vector3(0, 0, -1)
-        forward.applyAxisAngle(new THREE.Vector3(0, 1, 0), this.yaw).multiplyScalar(forwardVelocity * timeElapsedS * 10)
+        forward.applyAxisAngle(new THREE.Vector3(0, 1, 0), this.yaw).multiplyScalar(forwardVelocity)
         const strafe = new THREE.Vector3(1, 0, 0)
-        strafe.applyAxisAngle(new THREE.Vector3(0, 1, 0), this.yaw).multiplyScalar(strafeVelocity * timeElapsedS * 10)
+        strafe.applyAxisAngle(new THREE.Vector3(0, 1, 0), this.yaw).multiplyScalar(strafeVelocity)
 
-        this.translation.add(forward)
-        this.translation.add(strafe)
+        const deltaPosition = new THREE.Vector3().add(forward).add(strafe).normalize().multiplyScalar(timeElapsedS * 10)
+
+        this.translation.add(deltaPosition)
     }
 
     updateRotation() {

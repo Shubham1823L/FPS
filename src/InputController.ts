@@ -13,7 +13,6 @@ export class InputController {
 
     constructor() {
         window.addEventListener('mousemove', this.onMouseMove.bind(this))
-        window.addEventListener('mousedown', this.onMouseDown.bind(this))
         window.addEventListener('keydown', this.onKeyDown.bind(this))
         window.addEventListener('keyup', this.onKeyUp.bind(this))
     }
@@ -22,10 +21,6 @@ export class InputController {
         if (!document.pointerLockElement) return
         this.mouseDelta.x = e.movementX
         this.mouseDelta.y = e.movementY
-    }
-
-    private onMouseDown() {
-        if (!document.pointerLockElement) document.documentElement.requestPointerLock()
     }
 
     private onKeyDown(e: KeyboardEvent) {
