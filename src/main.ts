@@ -48,7 +48,7 @@ const animate = () => {
 
   physics.update(timeElapsedS, player, map.worldOctree)
 
-  renderer.render(scene, !document.pointerLockElement ? orbitCamera : player.camera)
+  renderer.render(scene, player.camera)
   stats.update()
 
   previousTime = performance.now()

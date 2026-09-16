@@ -23,7 +23,7 @@ export class Map {
         scene.add(glb.scene)
 
         const map = new Map(glb.scene)
-        scene.add(new OctreeHelper(map.worldOctree))
+        // scene.add(new OctreeHelper(map.worldOctree))
         return map
     }
 }
