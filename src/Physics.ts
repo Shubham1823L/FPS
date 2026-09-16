@@ -1,5 +1,6 @@
 import type { Octree } from "three/examples/jsm/Addons.js"
 import type { Player } from "./Player"
+import type { InputController } from "./InputController"
 
 export class Physics {
     accumulator = 0
@@ -12,22 +13,20 @@ export class Physics {
 
     }
 
-    update(timeElapsedS: number, player: Player, worldOctree: Octree) {
+    update(timeElapsedS: number, player: Player, input: InputController, worldOctree: Octree) {
         this.accumulator += timeElapsedS
 
         while (this.accumulator >= this.timestep) {
-            // camera has updated
-            // lets copy cam position to collider then resolve collision
-            player.update(this.timestep) // updates camera and collider (rotation and translation)
-            if (!player.onGround) {
-                player.velocity.y -= this.gravity * this.timestep
-                player.fpsCamera.translation.y += player.velocity.y * this.timestep
-                player.camera.position.copy(player.fpsCamera.translation)
-            }
-            player.updateColliderFromCamera()
+            // Calculate player velocity using gravity, yaw and input
+            player.calculateVelocity(input, this.gravity, this.timestep)
+
+            // Update playerCollider's position using velocity
+            const deltaPosition = player.velocity.clone().multiplyScalar(this.timestep)
+            player.collider.translate(deltaPosition)
+
+            // Resolve collisions from collider's updated position
             this.resolveCollisions(player, worldOctree)
-            player.updateCameraFromCollider()
-            player.updateColliderHelper()
+
 
             this.accumulator -= this.timestep
         }
@@ -42,6 +41,10 @@ export class Physics {
 
         // Collision detected
         player.onGround = result.normal.y >= 0.15 // 81deg slope max
+
+        if (!player.onGround) {
+            player.velocity.addScaledVector(result.normal, -result.normal.dot(player.velocity))
+        }
 
         if (result.depth >= 1e-10) {
             player.collider.translate(result.normal.multiplyScalar(result.depth))

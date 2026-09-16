@@ -1,3 +1,5 @@
+import * as THREE from 'three'
+
 export const keyMap = {
     forward: 'KeyW',
     left: 'KeyA',
@@ -6,9 +8,12 @@ export const keyMap = {
 }
 
 export class InputController {
-    activeKeys = new Set<string>()
+    private activeKeys = new Set<string>()
     mouseDelta = { x: 0, y: 0 }
     sensitivity = 0.005
+
+    movementDirection = new THREE.Vector3() // local normalized direction 
+    jumpRequested = false
 
 
     constructor() {
@@ -32,8 +37,25 @@ export class InputController {
         this.activeKeys.delete(e.code)
     }
 
-    update() {
+
+    updateMovementInput(playerOnGround: boolean) {
+        // read the keys and update the movement input vector to represent local normalized direction vector
+        const forwardVelocity = (this.activeKeys.has(keyMap.forward) ? -1 : 0) + (this.activeKeys.has(keyMap.backward) ? 1 : 0)
+        const strafeVelocity = (this.activeKeys.has(keyMap.right) ? 1 : 0) + (this.activeKeys.has(keyMap.left) ? -1 : 0)
+
+        this.movementDirection.set(strafeVelocity, 0, forwardVelocity).normalize()
+
+
+        if (playerOnGround && this.activeKeys.has('Space')) this.jumpRequested = true // we won't remove it from here, the animation loop handles that, this is called queueing , so that jump pressed and released between frames isnt missed
+    }
+
+
+    consumeMouseDelta() {
         this.mouseDelta = { x: 0, y: 0 }
+    }
+
+    consumeJumpRequest() {
+        this.jumpRequested = false
     }
 
 }

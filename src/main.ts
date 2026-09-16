@@ -5,6 +5,8 @@ import { Map } from './Map'
 import { Player } from './Player'
 import { OrbitControls } from 'three/examples/jsm/Addons.js'
 import { Physics } from './Physics'
+import { FirstPersonCamera } from './FirstPersonCamera'
+import { InputController } from './InputController'
 
 
 const stats = new Stats()
@@ -35,6 +37,8 @@ const player = new Player(scene)
 const physics = new Physics()
 Environment.generate(scene)
 const map = await Map.generate(scene)
+const fpsCamera = new FirstPersonCamera()
+const input = new InputController()
 
 
 // Render Loop
@@ -43,14 +47,31 @@ let previousTime = performance.now()
 
 const animate = () => {
   requestAnimationFrame(animate)
-
   const timeElapsedS = (performance.now() - previousTime) / 1000
 
-  physics.update(timeElapsedS, player, map.worldOctree)
 
-  renderer.render(scene, player.camera)
+  // We already have updated input from window eventlisteners, lets evaluate them
+  input.updateMovementInput(player.onGround)
+
+  // Let's calculate yaw and pitch first
+  player.calculateYaw(input.mouseDelta.x, input.sensitivity)
+  fpsCamera.calculatePitch(input.mouseDelta.y, input.sensitivity)
+
+  // Now we can run physics loop for player's velocity, collider's position, and collision logic
+  physics.update(timeElapsedS, player, input, map.worldOctree)
+
+  // Physics has updated collider's position, now lets update player position and its helper
+  player.update()
+
+  // Now we update camera orientation and position from player's position
+  fpsCamera.update(player)
+
+  // Since, everything is done, we now reset the input mouseDelta
+  input.consumeMouseDelta()
+
+
+  renderer.render(scene, fpsCamera.camera)
   stats.update()
-
   previousTime = performance.now()
 }
 
