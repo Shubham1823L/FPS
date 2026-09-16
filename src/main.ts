@@ -69,6 +69,7 @@ const animate = () => {
   // Since, everything is done, we now reset the input mouseDelta
   input.consumeMouseDelta()
 
+  console.log(player.position.y, player.collider.start.y, fpsCamera.camera.position.y,player.onGround,player.velocity)
 
   renderer.render(scene, fpsCamera.camera)
   stats.update()

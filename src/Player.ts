@@ -45,12 +45,17 @@ export class Player {
         this.velocity.x = inputVelocity.x
         this.velocity.z = inputVelocity.z
 
-        if (this.onGround && input.jumpRequested) {
-            this.velocity.y += this.jumpSpeed
-            input.consumeJumpRequest()
-        }
+        if (this.onGround) {
+            this.velocity.y = 0
 
-        if (!this.onGround) this.velocity.y -= gravity * timeElapsedS
+            if (input.jumpRequested) {
+                this.velocity.y = this.jumpSpeed
+                this.onGround = false
+                input.consumeJumpRequest()
+            }
+        }
+        else this.velocity.y -= gravity * timeElapsedS
+    
     }
 
     update() {
