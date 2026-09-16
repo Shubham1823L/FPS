@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { GLTFLoader, Octree } from 'three/examples/jsm/Addons.js'
+import { GLTFLoader, Octree, OctreeHelper } from 'three/examples/jsm/Addons.js'
 
 const loader = new GLTFLoader().setPath('/models')
 
@@ -12,21 +12,18 @@ export class Map {
     }
 
     static async generate(scene: THREE.Scene) {
-        try {
-            const glb = await loader.loadAsync('/ghost_city_map.glb')
-            glb.scene.traverse(child => {
-                if (child instanceof THREE.Mesh) {
-                    child.castShadow = true
-                    child.receiveShadow = true
-                }
-            })
+        const glb = await loader.loadAsync('/ghost_city_map.glb')
+        glb.scene.traverse(child => {
+            if (child instanceof THREE.Mesh) {
+                child.castShadow = true
+                child.receiveShadow = true
+            }
+        })
 
-            const map = new Map(glb.scene)
-            scene.add(glb.scene)
-            return map
+        scene.add(glb.scene)
 
-        } catch (error) {
-            console.error("Error loading map", error)
-        }
+        const map = new Map(glb.scene)
+        scene.add(new OctreeHelper(map.worldOctree))
+        return map
     }
 }

@@ -4,6 +4,7 @@ import { Environment } from './Environment'
 import { Map } from './Map'
 import { Player } from './Player'
 import { OrbitControls } from 'three/examples/jsm/Addons.js'
+import { Physics } from './Physics'
 
 
 const stats = new Stats()
@@ -31,8 +32,9 @@ orbitControls.update()
 // Scene and others Setup
 const scene = new THREE.Scene()
 const player = new Player(scene)
+const physics = new Physics()
 Environment.generate(scene)
-Map.generate(scene)
+const map = await Map.generate(scene)
 
 
 // Render Loop
@@ -43,9 +45,10 @@ const animate = () => {
   requestAnimationFrame(animate)
 
   const timeElapsedS = (performance.now() - previousTime) / 1000
-  player.update(timeElapsedS)
-  renderer.render(scene, !document.pointerLockElement ? orbitCamera : player.camera)
 
+  physics.update(timeElapsedS, player, map.worldOctree)
+
+  renderer.render(scene, !document.pointerLockElement ? orbitCamera : player.camera)
   stats.update()
 
   previousTime = performance.now()
