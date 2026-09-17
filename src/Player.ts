@@ -5,16 +5,12 @@ import { Weapon } from './Weapon'
 
 
 export class Player {
-    private spawnPosition = new THREE.Vector3(6, 0, 6) // spawn position of player (feet)
-    position = this.spawnPosition.clone() // position of player (feet)
+    private spawnPosition: THREE.Vector3 // spawn position of player (feet)
+    position: THREE.Vector3// position of player (feet)
 
     colliderRadius = .35
     height = 1.75 // total height of player (feet to head)
-    collider = new Capsule(
-        this.spawnPosition.clone().add(new THREE.Vector3(0, this.colliderRadius, 0)),
-        this.spawnPosition.clone().add(new THREE.Vector3(0, this.height - this.colliderRadius)),
-        this.colliderRadius
-    )
+    collider: Capsule
     helper = new THREE.Mesh(
         new THREE.CapsuleGeometry(this.colliderRadius, this.height - (2 * this.colliderRadius)),
         new THREE.MeshBasicMaterial({ wireframe: true, color: 'white' })
@@ -31,11 +27,20 @@ export class Player {
     input = new InputController()
     activeWeapon: Weapon
 
-    constructor(scene: THREE.Scene, activeWeapon: Weapon) {
+
+    constructor(scene: THREE.Scene, activeWeapon: Weapon, spawnPosition = new THREE.Vector3()) {
+        this.activeWeapon = activeWeapon
+
+        this.spawnPosition = spawnPosition
+        this.position = this.spawnPosition
+        this.collider = new Capsule(
+            this.spawnPosition.clone().add(new THREE.Vector3(0, this.colliderRadius, 0)),
+            this.spawnPosition.clone().add(new THREE.Vector3(0, this.height - this.colliderRadius)),
+            this.colliderRadius
+        )
+
         scene.add(this.helper)
         this.helper.visible = false
-
-        this.activeWeapon = activeWeapon
     }
 
     calculateYaw() {

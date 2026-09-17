@@ -6,9 +6,9 @@ import { Player } from './Player'
 import { OrbitControls } from 'three/examples/jsm/Addons.js'
 import { Physics } from './Physics'
 import { FirstPersonCamera } from './FirstPersonCamera'
-import { InputController } from './InputController'
 import { Weapon } from './Weapon'
 import { HitScanner } from './HitScanner'
+import { Bot } from './Bot'
 
 
 const stats = new Stats()
@@ -39,9 +39,14 @@ const physics = new Physics()
 Environment.generate(scene)
 const map = await Map.generate(scene)
 const fpsCamera = new FirstPersonCamera()
-const hitScanner = new HitScanner(fpsCamera.camera, map, scene)
+
+const bot = new Bot(scene)
+
+const hitScanner = new HitScanner(fpsCamera.camera, [map.scene, bot.helper], scene)
 const weapon = new Weapon(hitScanner)
 const player = new Player(scene, weapon)
+
+
 
 
 // Render Loop
@@ -52,7 +57,6 @@ const animate = () => {
   requestAnimationFrame(animate)
   const currentTimeS = performance.now() / 1000
   const timeElapsedS = currentTimeS - previousTimeS
-
 
   // We already have updated input from window eventlisteners, lets evaluate them
   player.input.updateMovementInput(player.onGround)

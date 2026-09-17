@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import type { Map } from './Map'
+import { Bot } from './Bot'
 
 const SCREEN_CENTER = new THREE.Vector2()
 
@@ -10,13 +10,8 @@ export class HitScanner {
 
     private hitTarget = new THREE.Mesh(new THREE.SphereGeometry(.05), new THREE.MeshBasicMaterial({ color: 'red' }))
 
-    private target = {
-        boundingBox: new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2), new THREE.MeshBasicMaterial({ color: 'blue' })),
-        health: 100
-    }
-
-    constructor(camera: THREE.PerspectiveCamera, map: Map, scene: THREE.Scene) {
-        this.intersectableObjects = [map.scene, this.target.boundingBox]
+    constructor(camera: THREE.PerspectiveCamera, intersectableObjects: THREE.Object3D[], scene: THREE.Scene) {
+        this.intersectableObjects = intersectableObjects
         this.camera = camera
 
         this.rayCaster.near = 0.1
@@ -25,10 +20,6 @@ export class HitScanner {
 
         scene.add(this.hitTarget)
         this.hitTarget.visible = false
-
-        scene.add(this.target.boundingBox)
-        this.target.boundingBox.position.set(6, 2, 6)
-        this.target.boundingBox.name = 'target'
     }
 
     shoot(damage: number) {
@@ -42,15 +33,9 @@ export class HitScanner {
         this.hitTarget.position.copy(intersection.point)
         this.hitTarget.visible = true
 
-        if (intersection.object.name === 'target') {
-            if (this.target.health === 0) return
-            const reducedHealth = this.target.health - damage
-            this.target.health = Math.max(reducedHealth, 0)
-            if (this.target.health === 0) {
-                this.target.boundingBox.removeFromParent()
-                console.log("Target Defeated")
-            }
-        }
+        const target = intersection.object.userData
+
+        if (target instanceof Bot) target.takeDamage(damage)
 
     }
 
