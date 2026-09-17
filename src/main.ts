@@ -7,6 +7,7 @@ import { OrbitControls } from 'three/examples/jsm/Addons.js'
 import { Physics } from './Physics'
 import { FirstPersonCamera } from './FirstPersonCamera'
 import { InputController } from './InputController'
+import { Weapon } from './Weapon'
 
 
 const stats = new Stats()
@@ -38,16 +39,18 @@ const physics = new Physics()
 Environment.generate(scene)
 const map = await Map.generate(scene)
 const fpsCamera = new FirstPersonCamera()
+const weapon = new Weapon()
 const input = new InputController()
 
 
 // Render Loop
-let previousTime = performance.now()
+let previousTimeS = performance.now() / 1000
 
 
 const animate = () => {
   requestAnimationFrame(animate)
-  const timeElapsedS = (performance.now() - previousTime) / 1000
+  const currentTimeS = performance.now() / 1000
+  const timeElapsedS = currentTimeS - previousTimeS
 
 
   // We already have updated input from window eventlisteners, lets evaluate them
@@ -69,13 +72,13 @@ const animate = () => {
   // Now we update camera orientation and position from player's position
   fpsCamera.update(player)
 
-  // Firing
-  player.rayCastFromCrosshair(input.firing, fpsCamera.camera, map)
+  // Firing and reloading
+  weapon.update({ input, currentTimeS, player, camera: fpsCamera.camera, map })
 
 
   renderer.render(scene, fpsCamera.camera)
   stats.update()
-  previousTime = performance.now()
+  previousTimeS = performance.now() / 1000
 }
 
 

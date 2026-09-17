@@ -31,6 +31,7 @@ export class Player {
 
     rayCaster = new THREE.Raycaster()
     hitTarget = new THREE.Mesh(new THREE.SphereGeometry(.05), new THREE.MeshBasicMaterial({ color: 'red' }))
+    lastRayCast = 0
 
     target = {
         boundingBox: new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2), new THREE.MeshBasicMaterial({ color: 'blue' })),
@@ -94,8 +95,7 @@ export class Player {
         this.collider.getCenter(this.helper.position)
     }
 
-    rayCastFromCrosshair(firing: boolean, camera: THREE.PerspectiveCamera, map: Map) {
-        if (!firing) return
+    rayCastFromCrosshair(camera: THREE.PerspectiveCamera, map: Map, damage: number) {
         // Update raycaster
         this.rayCaster.setFromCamera(SCREEN_CENTER, camera)
 
@@ -105,6 +105,16 @@ export class Player {
         if (!(intersection?.object instanceof THREE.Mesh)) return this.hitTarget.visible = false
         this.hitTarget.position.copy(intersection.point)
         this.hitTarget.visible = true
+
+        if (intersection.object.name === 'target') {
+            if (this.target.health === 0) return
+            const reducedHealth = this.target.health - damage
+            this.target.health = Math.max(reducedHealth, 0)
+            if (this.target.health === 0) {
+                this.target.boundingBox.removeFromParent()
+                console.log("Target Defeated")
+            }
+        }
 
     }
 }
