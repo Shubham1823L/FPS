@@ -17,7 +17,7 @@ export class InputController {
     movementDirection = new THREE.Vector3() // local normalized direction 
     jumpRequested = false
 
-    firing = false
+    isFiring = false
     reloadRequested = false
 
 
@@ -51,11 +51,11 @@ export class InputController {
 
     private onMouseDown() {
         if (!document.pointerLockElement) document.documentElement.requestPointerLock()
-        this.firing = true
+        this.isFiring = true
     }
 
     private onMouseUp() {
-        this.firing = false
+        this.isFiring = false
     }
 
 

@@ -8,6 +8,7 @@ import { Physics } from './Physics'
 import { FirstPersonCamera } from './FirstPersonCamera'
 import { InputController } from './InputController'
 import { Weapon } from './Weapon'
+import { HitScanner } from './HitScanner'
 
 
 const stats = new Stats()
@@ -34,13 +35,14 @@ orbitControls.update()
 
 // Scene and others Setup
 const scene = new THREE.Scene()
-const player = new Player(scene)
 const physics = new Physics()
 Environment.generate(scene)
 const map = await Map.generate(scene)
 const fpsCamera = new FirstPersonCamera()
-const weapon = new Weapon()
 const input = new InputController()
+const hitScanner = new HitScanner(fpsCamera.camera, map, scene)
+const weapon = new Weapon(hitScanner)
+const player = new Player(scene, weapon, input)
 
 
 // Render Loop
@@ -67,13 +69,10 @@ const animate = () => {
   physics.update(timeElapsedS, player, input, map.worldOctree)
 
   // Physics has updated collider's position, now lets update player position and its helper
-  player.update()
+  player.update(currentTimeS)
 
   // Now we update camera orientation and position from player's position
   fpsCamera.update(player)
-
-  // Firing and reloading
-  weapon.update({ input, currentTimeS, player, camera: fpsCamera.camera, map })
 
 
   renderer.render(scene, fpsCamera.camera)

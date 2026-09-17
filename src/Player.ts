@@ -1,9 +1,8 @@
 import * as THREE from 'three'
 import { Capsule } from 'three/examples/jsm/Addons.js'
-import type { InputController } from './InputController'
-import type { Map } from './Map'
+import { InputController } from './InputController'
+import { Weapon } from './Weapon'
 
-const SCREEN_CENTER = new THREE.Vector2()
 
 export class Player {
     private spawnPosition = new THREE.Vector3(6, 0, 6) // spawn position of player (feet)
@@ -29,28 +28,15 @@ export class Player {
     speed = 10
     jumpSpeed = 12
 
-    rayCaster = new THREE.Raycaster()
-    hitTarget = new THREE.Mesh(new THREE.SphereGeometry(.05), new THREE.MeshBasicMaterial({ color: 'red' }))
-    lastRayCast = 0
+    input: InputController
+    activeWeapon: Weapon
 
-    target = {
-        boundingBox: new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2), new THREE.MeshBasicMaterial({ color: 'blue' })),
-        health: 100
-    }
-
-    constructor(scene: THREE.Scene) {
+    constructor(scene: THREE.Scene, activeWeapon: Weapon, input: InputController) {
         scene.add(this.helper)
         this.helper.visible = false
 
-        this.rayCaster.near = 0.1
-        this.rayCaster.far = 50
-
-        scene.add(this.hitTarget)
-        this.hitTarget.visible = false
-
-        scene.add(this.target.boundingBox)
-        this.target.boundingBox.position.copy(this.spawnPosition).add(new THREE.Vector3(0, 2, 0))
-        this.target.boundingBox.name = 'target'
+        this.input = input
+        this.activeWeapon = activeWeapon
     }
 
     calculateYaw(mouseDeltaX: number, sensitivity: number) {
@@ -88,33 +74,15 @@ export class Player {
         this.velocity.addScaledVector(this.velocity, damping)
     }
 
-    update() {
+    update(currentTimeS: number) {
+        this.updatePosition()
+        this.activeWeapon.update(this.input, currentTimeS)
+    }
+
+    updatePosition() {
         this.collider.getCenter(this.position)
         this.position.y -= this.height / 2
 
         this.collider.getCenter(this.helper.position)
-    }
-
-    rayCastFromCrosshair(camera: THREE.PerspectiveCamera, map: Map, damage: number) {
-        // Update raycaster
-        this.rayCaster.setFromCamera(SCREEN_CENTER, camera)
-
-        // Cast ray, and detect intersected object
-        const intersection = this.rayCaster.intersectObjects([map.scene, this.target.boundingBox], true)[0]
-
-        if (!(intersection?.object instanceof THREE.Mesh)) return this.hitTarget.visible = false
-        this.hitTarget.position.copy(intersection.point)
-        this.hitTarget.visible = true
-
-        if (intersection.object.name === 'target') {
-            if (this.target.health === 0) return
-            const reducedHealth = this.target.health - damage
-            this.target.health = Math.max(reducedHealth, 0)
-            if (this.target.health === 0) {
-                this.target.boundingBox.removeFromParent()
-                console.log("Target Defeated")
-            }
-        }
-
     }
 }

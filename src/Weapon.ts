@@ -1,6 +1,4 @@
-import * as THREE from 'three'
-import type { Player } from './Player'
-import type { Map } from './Map'
+import { HitScanner } from './HitScanner'
 import type { InputController } from './InputController'
 
 export class Weapon {
@@ -10,15 +8,19 @@ export class Weapon {
     currentAmmo = this.magazineCapcity
     reloadTime = 1 // In seconds
     isReloading = false
+    lastFire = 0
 
-    constructor() {
+    hitScanner: HitScanner
 
+    constructor(hitScanner: HitScanner) {
+        this.hitScanner = hitScanner
     }
 
-    fire(player: Player, camera: THREE.PerspectiveCamera, map: Map) {
+    fire() {
         if (this.isReloading) return
         if (this.currentAmmo == 0) return this.reload()
-        player.rayCastFromCrosshair(camera, map, this.damage)
+
+        this.hitScanner.shoot(this.damage)
         this.currentAmmo--
 
         // Auto reload
@@ -35,21 +37,14 @@ export class Weapon {
         }, this.reloadTime * 1000);
     }
 
-    update({ input, currentTimeS, player, camera, map }:
-        {
-            input: InputController,
-            currentTimeS: number,
-            player: Player,
-            camera: THREE.PerspectiveCamera,
-            map: Map
-        }) {
+    update(input: InputController, currentTimeS: number) {
         // Reload if requested
         if (input.reloadRequested) this.reload()
 
-        // Fire
-        if (input.firing && currentTimeS - player.lastRayCast > 1 / this.rateOfFire) {
-            player.lastRayCast = currentTimeS
-            this.fire(player, camera, map)
+        // Fire if conditions allow
+        if (input.isFiring && currentTimeS - this.lastFire > 1 / this.rateOfFire) {
+            this.lastFire = currentTimeS
+            this.fire()
         }
     }
 }
