@@ -24,10 +24,11 @@ export class Player {
     yaw = 0
 
     speed = 10
-    jumpSpeed = 10
+    jumpSpeed = 12
 
     constructor(scene: THREE.Scene) {
         scene.add(this.helper)
+        this.helper.visible = false
     }
 
     calculateYaw(mouseDeltaX: number, sensitivity: number) {
@@ -40,11 +41,13 @@ export class Player {
         this.yaw = yaw
     }
 
-    calculateVelocity(input: InputController, gravity: number, timeElapsedS: number) {
-        const inputVelocity = input.movementDirection.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), this.yaw).multiplyScalar(this.speed)
-        this.velocity.x = inputVelocity.x
-        this.velocity.z = inputVelocity.z
+    calculateVelocity(input: InputController, gravity: number, decayConstant: number, timeElapsedS: number) {
+        const deltaSpeed = (this.onGround ? 75 : 5) * timeElapsedS
+        const inputVelocity = input.movementDirection.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), this.yaw).multiplyScalar(deltaSpeed)
+        this.velocity.x += inputVelocity.x
+        this.velocity.z += inputVelocity.z
 
+        let damping = Math.exp(-decayConstant * timeElapsedS) - 1;
         if (this.onGround) {
             this.velocity.y = 0
 
@@ -54,8 +57,12 @@ export class Player {
                 input.consumeJumpRequest()
             }
         }
-        else this.velocity.y -= gravity * timeElapsedS
-    
+        else {
+            this.velocity.y -= gravity * timeElapsedS
+            damping *= 0.1
+        }
+
+        this.velocity.addScaledVector(this.velocity, damping)
     }
 
     update() {

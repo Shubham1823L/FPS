@@ -8,6 +8,7 @@ export class Physics {
     timestep = 1 / this.simulationRate
 
     gravity = 30
+    decayConstant = 10 // k=4 means, after t= ln2/k = (ln2)/4 = .173 seconds approx, the speed will be halved
 
     constructor() {
 
@@ -18,7 +19,7 @@ export class Physics {
 
         while (this.accumulator >= this.timestep) {
             // Calculate player velocity using gravity, yaw and input
-            player.calculateVelocity(input, this.gravity, this.timestep)
+            player.calculateVelocity(input, this.gravity, this.decayConstant, this.timestep)
 
             // Update playerCollider's position using velocity
             const deltaPosition = player.velocity.clone().multiplyScalar(this.timestep)
@@ -35,15 +36,13 @@ export class Physics {
 
     resolveCollisions(player: Player, worldOctree: Octree) {
         const result = worldOctree.capsuleIntersect(player.collider)
-        
+
         player.onGround = false
 
         if (!result) return
 
         // Collision detected
         player.onGround = result.normal.y >= 0.15 // 81deg slope max
-        // if (player.onGround) console.log(result.normal, player.onGround)
-        // else console.error(result.normal, player.onGround)
 
         if (!player.onGround) {
             player.velocity.addScaledVector(result.normal, -result.normal.dot(player.velocity))
