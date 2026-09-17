@@ -1,6 +1,5 @@
 import type { Octree } from "three/examples/jsm/Addons.js"
 import type { Player } from "./Player"
-import type { InputController } from "./InputController"
 
 export class Physics {
     accumulator = 0
@@ -14,12 +13,12 @@ export class Physics {
 
     }
 
-    update(timeElapsedS: number, player: Player, input: InputController, worldOctree: Octree) {
+    update(timeElapsedS: number, player: Player, worldOctree: Octree) {
         this.accumulator += timeElapsedS
 
         while (this.accumulator >= this.timestep) {
             // Calculate player velocity using gravity, yaw and input
-            player.calculateVelocity(input, this.gravity, this.decayConstant, this.timestep)
+            player.calculateVelocity(this.gravity, this.decayConstant, this.timestep)
 
             // Update playerCollider's position using velocity
             const deltaPosition = player.velocity.clone().multiplyScalar(this.timestep)

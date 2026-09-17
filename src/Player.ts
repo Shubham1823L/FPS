@@ -28,19 +28,18 @@ export class Player {
     speed = 10
     jumpSpeed = 12
 
-    input: InputController
+    input = new InputController()
     activeWeapon: Weapon
 
-    constructor(scene: THREE.Scene, activeWeapon: Weapon, input: InputController) {
+    constructor(scene: THREE.Scene, activeWeapon: Weapon) {
         scene.add(this.helper)
         this.helper.visible = false
 
-        this.input = input
         this.activeWeapon = activeWeapon
     }
 
-    calculateYaw(mouseDeltaX: number, sensitivity: number) {
-        const xh = mouseDeltaX * sensitivity
+    calculateYaw() {
+        const xh = this.input.mouseDelta.x * this.input.sensitivity
         let yaw = this.yaw + (- xh) // restricted but unbounded range ---> (-PI,PI] - desired
 
         if (yaw > Math.PI) yaw -= (2 * Math.PI)
@@ -49,10 +48,10 @@ export class Player {
         this.yaw = yaw
     }
 
-    calculateVelocity(input: InputController, gravity: number, decayConstant: number, timeElapsedS: number) {
+    calculateVelocity(gravity: number, decayConstant: number, timeElapsedS: number) {
         const deltaSpeed = (this.onGround ? 110.5 : 5) * timeElapsedS
 
-        const inputVelocity = input.movementDirection.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), this.yaw).multiplyScalar(deltaSpeed)
+        const inputVelocity = this.input.movementDirection.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), this.yaw).multiplyScalar(deltaSpeed)
         this.velocity.x += inputVelocity.x
         this.velocity.z += inputVelocity.z
 
@@ -60,10 +59,10 @@ export class Player {
         if (this.onGround) {
             this.velocity.y = 0
 
-            if (input.jumpRequested) {
+            if (this.input.jumpRequested) {
                 this.velocity.y = this.jumpSpeed
                 this.onGround = false
-                input.consumeJumpRequest()
+                this.input.consumeJumpRequest()
             }
         }
         else {

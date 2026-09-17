@@ -39,10 +39,9 @@ const physics = new Physics()
 Environment.generate(scene)
 const map = await Map.generate(scene)
 const fpsCamera = new FirstPersonCamera()
-const input = new InputController()
 const hitScanner = new HitScanner(fpsCamera.camera, map, scene)
 const weapon = new Weapon(hitScanner)
-const player = new Player(scene, weapon, input)
+const player = new Player(scene, weapon)
 
 
 // Render Loop
@@ -56,17 +55,17 @@ const animate = () => {
 
 
   // We already have updated input from window eventlisteners, lets evaluate them
-  input.updateMovementInput(player.onGround)
+  player.input.updateMovementInput(player.onGround)
 
   // Let's calculate yaw and pitch first
-  player.calculateYaw(input.mouseDelta.x, input.sensitivity)
-  fpsCamera.calculatePitch(input.mouseDelta.y, input.sensitivity)
+  player.calculateYaw()
+  fpsCamera.calculatePitch(player.input.mouseDelta.y, player.input.sensitivity)
 
   // Since, rotation is taken care of, we now reset the input mouseDelta
-  input.consumeMouseDelta()
+  player.input.consumeMouseDelta()
 
   // Now we can run physics loop for player's velocity, collider's position, and collision logic
-  physics.update(timeElapsedS, player, input, map.worldOctree)
+  physics.update(timeElapsedS, player, map.worldOctree)
 
   // Physics has updated collider's position, now lets update player position and its helper
   player.update(currentTimeS)
