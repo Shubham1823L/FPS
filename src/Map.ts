@@ -1,14 +1,16 @@
 import * as THREE from 'three'
-import { GLTFLoader, Octree, OctreeHelper } from 'three/examples/jsm/Addons.js'
+import { GLTFLoader, Octree } from 'three/examples/jsm/Addons.js'
 
 const loader = new GLTFLoader().setPath('/models')
 
 export class Map {
     worldOctree = new Octree()
+    scene: THREE.Group
 
 
     private constructor(scene: THREE.Group) {
         this.worldOctree.fromGraphNode(scene)
+        this.scene = scene
     }
 
     static async generate(scene: THREE.Scene) {
@@ -23,7 +25,6 @@ export class Map {
         scene.add(glb.scene)
 
         const map = new Map(glb.scene)
-        // scene.add(new OctreeHelper(map.worldOctree))
         return map
     }
 }

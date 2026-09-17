@@ -1,6 +1,9 @@
 import * as THREE from 'three'
 import { Capsule } from 'three/examples/jsm/Addons.js'
 import type { InputController } from './InputController'
+import type { Map } from './Map'
+
+const SCREEN_CENTER = new THREE.Vector2()
 
 export class Player {
     private spawnPosition = new THREE.Vector3(6, 0, 6) // spawn position of player (feet)
@@ -26,9 +29,27 @@ export class Player {
     speed = 10
     jumpSpeed = 12
 
+    rayCaster = new THREE.Raycaster()
+    hitTarget = new THREE.Mesh(new THREE.SphereGeometry(.05), new THREE.MeshBasicMaterial({ color: 'red' }))
+
+    target = {
+        boundingBox: new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2), new THREE.MeshBasicMaterial({ color: 'blue' })),
+        health: 100
+    }
+
     constructor(scene: THREE.Scene) {
         scene.add(this.helper)
         this.helper.visible = false
+
+        this.rayCaster.near = 0.1
+        this.rayCaster.far = 50
+
+        scene.add(this.hitTarget)
+        this.hitTarget.visible = false
+
+        scene.add(this.target.boundingBox)
+        this.target.boundingBox.position.copy(this.spawnPosition).add(new THREE.Vector3(0, 2, 0))
+        this.target.boundingBox.name = 'target'
     }
 
     calculateYaw(mouseDeltaX: number, sensitivity: number) {
@@ -43,7 +64,7 @@ export class Player {
 
     calculateVelocity(input: InputController, gravity: number, decayConstant: number, timeElapsedS: number) {
         const deltaSpeed = (this.onGround ? 110.5 : 5) * timeElapsedS
-       
+
         const inputVelocity = input.movementDirection.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), this.yaw).multiplyScalar(deltaSpeed)
         this.velocity.x += inputVelocity.x
         this.velocity.z += inputVelocity.z
@@ -71,5 +92,19 @@ export class Player {
         this.position.y -= this.height / 2
 
         this.collider.getCenter(this.helper.position)
+    }
+
+    rayCastFromCrosshair(firing: boolean, camera: THREE.PerspectiveCamera, map: Map) {
+        if (!firing) return
+        // Update raycaster
+        this.rayCaster.setFromCamera(SCREEN_CENTER, camera)
+
+        // Cast ray, and detect intersected object
+        const intersection = this.rayCaster.intersectObjects([map.scene, this.target.boundingBox], true)[0]
+
+        if (!(intersection?.object instanceof THREE.Mesh)) return this.hitTarget.visible = false
+        this.hitTarget.position.copy(intersection.point)
+        this.hitTarget.visible = true
+
     }
 }

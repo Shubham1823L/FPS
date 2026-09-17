@@ -57,6 +57,9 @@ const animate = () => {
   player.calculateYaw(input.mouseDelta.x, input.sensitivity)
   fpsCamera.calculatePitch(input.mouseDelta.y, input.sensitivity)
 
+  // Since, rotation is taken care of, we now reset the input mouseDelta
+  input.consumeMouseDelta()
+
   // Now we can run physics loop for player's velocity, collider's position, and collision logic
   physics.update(timeElapsedS, player, input, map.worldOctree)
 
@@ -66,8 +69,8 @@ const animate = () => {
   // Now we update camera orientation and position from player's position
   fpsCamera.update(player)
 
-  // Since, everything is done, we now reset the input mouseDelta
-  input.consumeMouseDelta()
+  // Firing
+  player.rayCastFromCrosshair(input.firing, fpsCamera.camera, map)
 
 
   renderer.render(scene, fpsCamera.camera)
@@ -87,4 +90,5 @@ window.addEventListener('resize', () => {
 
 // Run
 animate()
+
 

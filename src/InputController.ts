@@ -15,11 +15,15 @@ export class InputController {
     movementDirection = new THREE.Vector3() // local normalized direction 
     jumpRequested = false
 
+    firing = false
+
 
     constructor() {
         window.addEventListener('mousemove', this.onMouseMove.bind(this))
         window.addEventListener('keydown', this.onKeyDown.bind(this))
         window.addEventListener('keyup', this.onKeyUp.bind(this))
+        window.addEventListener('mousedown', this.onMouseDown.bind(this))
+        window.addEventListener('mouseup', this.onMouseUp.bind(this))
     }
 
     private onMouseMove(e: MouseEvent) {
@@ -35,6 +39,15 @@ export class InputController {
 
     private onKeyUp(e: KeyboardEvent) {
         this.activeKeys.delete(e.code)
+    }
+
+    private onMouseDown() {
+        if (!document.pointerLockElement) document.documentElement.requestPointerLock()
+        this.firing = true
+    }
+
+    private onMouseUp() {
+        this.firing = false
     }
 
 
@@ -54,6 +67,7 @@ export class InputController {
         this.mouseDelta = { x: 0, y: 0 }
     }
 
+    
     consumeJumpRequest() {
         this.jumpRequested = false
     }
