@@ -35,19 +35,22 @@ export class Physics {
 
     resolveCollisions(player: Player, worldOctree: Octree) {
         const result = worldOctree.capsuleIntersect(player.collider)
+        
         player.onGround = false
 
         if (!result) return
 
         // Collision detected
         player.onGround = result.normal.y >= 0.15 // 81deg slope max
+        // if (player.onGround) console.log(result.normal, player.onGround)
+        // else console.error(result.normal, player.onGround)
 
         if (!player.onGround) {
             player.velocity.addScaledVector(result.normal, -result.normal.dot(player.velocity))
         }
 
         if (result.depth >= 1e-10) {
-            player.collider.translate(result.normal.multiplyScalar(result.depth))
+            player.collider.translate(result.normal.clone().multiplyScalar(result.depth))
         }
 
     }

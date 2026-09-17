@@ -24,7 +24,7 @@ export class Player {
     yaw = 0
 
     speed = 10
-    jumpSpeed = 15
+    jumpSpeed = 10
 
     constructor(scene: THREE.Scene) {
         scene.add(this.helper)
