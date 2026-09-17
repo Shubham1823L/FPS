@@ -8,7 +8,7 @@ export class Physics {
     timestep = 1 / this.simulationRate
 
     gravity = 30
-    decayConstant = 10 // k=4 means, after t= ln2/k = (ln2)/4 = .173 seconds approx, the speed will be halved
+    decayConstant = 15 // k=4 means, after t= ln2/k = (ln2)/4 = .173 seconds approx, the speed will be halved
 
     constructor() {
 

@@ -12,7 +12,7 @@ export class Map {
     }
 
     static async generate(scene: THREE.Scene) {
-        const glb = await loader.loadAsync('/collision-world.glb')
+        const glb = await loader.loadAsync('/warehouse.glb')
         glb.scene.traverse(child => {
             if (child instanceof THREE.Mesh) {
                 child.castShadow = true

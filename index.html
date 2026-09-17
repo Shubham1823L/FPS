@@ -89,14 +89,71 @@
     font-size: 32px;
   }
 
-  body{
+  body {
     background-color: #80a0e0;
+  }
+
+  #crosshair {
+    --color: white;
+    --dim: 1.25rem;
+    --gap: .125rem;
+    --stroke-width: 1.5px;
+    --dot-dim: 2.4px;
+
+    width: var(--dim);
+    height: var(--dim);
+
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+  }
+
+  .horizontalCrosshairLines {
+    display: flex;
+    align-items: center;
+    gap: var(--gap);
+  }
+
+  .crosshairDot {
+    width: var(--dot-dim);
+    height: var(--dot-dim);
+    border-radius: 50%;
+
+    background-color: var(--color);
+  }
+
+  .horizontalCrosshairLine,
+  .verticalCrosshairLine {
+    flex: 1;
+    background-color: var(--color);
+  }
+
+  .horizontalCrosshairLine {
+    height: var(--stroke-width);
+  }
+
+  .verticalCrosshairLine {
+    width: var(--stroke-width);
+    margin-inline: auto;
   }
 </style>
 
 <body>
   <div id="app"></div>
-  <div id="playerCoordinates"></div>
+  <div id="crosshair">
+    <span class="verticalCrosshairLine"></span>
+    <div class="horizontalCrosshairLines">
+      <span class="horizontalCrosshairLine"></span>
+      <span class="crosshairDot"></span>
+      <span class="horizontalCrosshairLine"></span>
+    </div>
+    <span class="verticalCrosshairLine"></span>
+  </div>
   <script type="module" src="/src/main.ts"></script>
 </body>
 

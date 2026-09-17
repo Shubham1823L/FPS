@@ -7,7 +7,7 @@ export class Player {
     position = this.spawnPosition.clone() // position of player (feet)
 
     colliderRadius = .35
-    height = 1.35 // total height of player (feet to head)
+    height = 1.75 // total height of player (feet to head)
     collider = new Capsule(
         this.spawnPosition.clone().add(new THREE.Vector3(0, this.colliderRadius, 0)),
         this.spawnPosition.clone().add(new THREE.Vector3(0, this.height - this.colliderRadius)),
@@ -42,7 +42,8 @@ export class Player {
     }
 
     calculateVelocity(input: InputController, gravity: number, decayConstant: number, timeElapsedS: number) {
-        const deltaSpeed = (this.onGround ? 75 : 5) * timeElapsedS
+        const deltaSpeed = (this.onGround ? 110.5 : 5) * timeElapsedS
+       
         const inputVelocity = input.movementDirection.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), this.yaw).multiplyScalar(deltaSpeed)
         this.velocity.x += inputVelocity.x
         this.velocity.z += inputVelocity.z
