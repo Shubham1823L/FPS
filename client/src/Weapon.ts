@@ -77,8 +77,12 @@ export class Weapon {
 
         this.model = glb.scene
         camera.add(this.model)
-        this.model.position.set(.5, -.8, -.4)
-        this.model.rotation.set(Math.PI / 16, -Math.PI / 2 + Math.PI/16, 0)
-
+        this.model.scale.z = 2
+        this.model.scale.x = .5
+        this.model.position.set(.4, -.6, -.75)
+        const rotY = -70 * (Math.PI / 180)
+        const rotX = 13.5 * (Math.PI / 180)
+        this.model.rotation.set(rotX, rotY, 0)
     }
+
 }
