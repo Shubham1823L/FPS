@@ -60,8 +60,11 @@ socket.on('player:joined', (socketId, data) => {
 })
 
 socket.on('player:left', (socketId) => {
-    const result = remotePlayers.delete(socketId)
-    if (result) console.info(`Player: ${socketId} has left the game`)
+    let remotePlayer = remotePlayers.get(socketId)
+    if (!remotePlayer) return
+    remotePlayer.helper.removeFromParent()
+    remotePlayer = undefined
+    console.info(`Player: ${socketId} has left the game`)
 })
 
 const initalizeRemotePlayer = (socketId: string, data: PlayerData) => {

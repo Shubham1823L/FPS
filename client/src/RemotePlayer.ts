@@ -4,7 +4,7 @@ export class RemotePlayer {
     private position: THREE.Vector3
     private height = 1.75
     private radius = .35
-    private helper = new THREE.Mesh(new THREE.CapsuleGeometry(this.radius, this.height - (2 * this.radius)), new THREE.MeshBasicMaterial({ wireframe: true, color: 'aqua' }))
+    helper = new THREE.Mesh(new THREE.CapsuleGeometry(this.radius, this.height - (2 * this.radius)), new THREE.MeshBasicMaterial({ wireframe: true, color: 'aqua' }))
 
     constructor(scene: THREE.Scene, position: THREE.Vector3) {
         this.position = position
