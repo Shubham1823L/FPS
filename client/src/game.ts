@@ -53,7 +53,6 @@ export class Game {
 
 
 
-
     // Render Loop
     let previousTimeS = performance.now() / 1000
 
@@ -100,6 +99,8 @@ export class Game {
 
     // Run
     animate()
+
+    return { player, scene }
   }
 }
 

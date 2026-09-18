@@ -1,14 +1,22 @@
 import express from "express"
 import env from "./config/env"
+import http from 'http'
 import cors from "cors"
 import cookieParser from "cookie-parser"
+
 import connectToMongoDB from "./config/mongoConnect"
+
 import errorHandler from "./middlewares/errorHandler"
 import responseHandler from "./middlewares/responseHandler"
+import initializeWebSocket from "./socket"
 
 await connectToMongoDB()
 
 const app = express();
+const server = http.createServer(app)
+
+// Socket
+initializeWebSocket(server)
 
 app.use(express.json())
 app.use(cors({
@@ -25,6 +33,7 @@ app.get('/api', (req, res) => {
 
 app.use(errorHandler)
 
-app.listen(env.PORT, () => {
+server.listen(env.PORT, () => {
   console.log(`Server listening on port ${env.PORT}`);
 });
+
