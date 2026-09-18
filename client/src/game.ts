@@ -1,9 +1,7 @@
 import * as THREE from 'three'
-import Stats from 'three/examples/jsm/libs/stats.module.js'
 import { Environment } from './Environment'
 import { Map } from './Map'
 import { Player } from './Player'
-import { OrbitControls } from 'three/examples/jsm/Addons.js'
 import { Physics } from './Physics'
 import { FirstPersonCamera } from './FirstPersonCamera'
 import { Weapon } from './Weapon'
@@ -16,13 +14,6 @@ export class Game {
   }
 
   async initialize() {
-    const stats = new Stats()
-    document.body.appendChild(stats.dom)
-
-    const orbitCamera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight)
-    orbitCamera.position.set(-32, 16, -32)
-    orbitCamera.lookAt(0, 0, 0)
-
     // Renderer Setup
     const renderer = new THREE.WebGLRenderer()
     renderer.setPixelRatio(devicePixelRatio)
@@ -33,9 +24,6 @@ export class Game {
     document.body.appendChild(renderer.domElement)
 
 
-    const orbitControls = new OrbitControls(orbitCamera, renderer.domElement)
-    orbitControls.target.set(0, 0, 0)
-    orbitControls.update()
 
 
     // Scene and others Setup
@@ -83,16 +71,12 @@ export class Game {
 
 
       renderer.render(scene, fpsCamera.camera)
-      stats.update()
       previousTimeS = performance.now() / 1000
     }
 
 
     // Resize Observer
     window.addEventListener('resize', () => {
-      orbitCamera.aspect = window.innerWidth / window.innerHeight
-      orbitCamera.updateProjectionMatrix()
-
       renderer.setSize(window.innerWidth, window.innerHeight)
     })
 

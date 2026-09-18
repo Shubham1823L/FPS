@@ -1,6 +1,7 @@
 import { HitScanner } from './HitScanner'
 import type { InputController } from './InputController'
 
+
 export class Weapon {
     rateOfFire = 10 // No. of shots per second
     damage = 10
@@ -10,16 +11,26 @@ export class Weapon {
     isReloading = false
     lastFire = 0
 
+    fireSound = new Audio('/sounds/weapons/ak47.mp3')
+    reloadSound = new Audio('/sounds/weapons/reload.mp3')
+
     hitScanner: HitScanner
 
     constructor(hitScanner: HitScanner) {
         this.hitScanner = hitScanner
+
+
+        this.fireSound.volume = .2
+        this.reloadSound.volume = .2
+
     }
 
     fire() {
         if (this.isReloading) return
         if (this.currentAmmo == 0) return this.reload()
 
+        this.fireSound.currentTime = 0
+        this.fireSound.play()
         this.hitScanner.shoot(this.damage)
         this.currentAmmo--
 
@@ -30,10 +41,12 @@ export class Weapon {
     reload() {
         if (this.isReloading || this.currentAmmo === this.magazineCapcity) return
         this.isReloading = true
-
+        this.reloadSound.currentTime = 0
+        this.reloadSound.play()
         setTimeout(() => {
             this.currentAmmo = this.magazineCapcity
             this.isReloading = false
+            this.reloadSound.pause()
         }, this.reloadTime * 1000);
     }
 
