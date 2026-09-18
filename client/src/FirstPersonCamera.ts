@@ -7,9 +7,11 @@ export class FirstPersonCamera {
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight)
     pitch = 0
 
-    constructor() {
+    constructor(scene: THREE.Scene) {
         this.camera.rotation.order = 'YXZ'
         window.addEventListener('resize', this.onResize.bind(this))
+
+        scene.add(this.camera)
     }
 
     private onResize() {

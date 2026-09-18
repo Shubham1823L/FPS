@@ -7,6 +7,7 @@ import { FirstPersonCamera } from './FirstPersonCamera'
 import { Weapon } from './Weapon'
 import { HitScanner } from './HitScanner'
 import { Bot } from './Bot'
+import { OrbitControls } from 'three/examples/jsm/Addons.js'
 
 export class Game {
 
@@ -23,7 +24,13 @@ export class Game {
     renderer.shadowMap.type = THREE.PCFShadowMap
     document.body.appendChild(renderer.domElement)
 
+    const orbitCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight)
+    orbitCamera.position.set(-32, 16, -32)
+    orbitCamera.lookAt(0, 0, 0)
 
+    const controls = new OrbitControls(orbitCamera, renderer.domElement)
+    controls.target.set(16, 0, 16)
+    controls.update()
 
 
     // Scene and others Setup
@@ -31,12 +38,12 @@ export class Game {
     const physics = new Physics()
     Environment.generate(scene)
     const map = await Map.generate(scene)
-    const fpsCamera = new FirstPersonCamera()
+    const fpsCamera = new FirstPersonCamera(scene)
 
     const bot = new Bot(scene)
 
     const hitScanner = new HitScanner(fpsCamera.camera, [map.scene, bot.helper], scene)
-    const weapon = new Weapon(hitScanner)
+    const weapon = new Weapon(hitScanner, fpsCamera.camera)
     const player = new Player(scene, weapon)
 
 
@@ -71,6 +78,7 @@ export class Game {
 
 
       renderer.render(scene, fpsCamera.camera)
+      // renderer.render(scene, orbitCamera)
       previousTimeS = performance.now() / 1000
     }
 
